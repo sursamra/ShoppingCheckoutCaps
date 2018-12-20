@@ -5,19 +5,20 @@ namespace ShoppingCheckoutLibrary
 {
   public class PointofSale
   {
-    private readonly Dictionary<string, decimal> fruitPrices;
+    private readonly Dictionary<Item, IPricingStrategy> pricingStrategies;
 
-    public PointofSale(Dictionary<string, decimal> pFruitPrices)
+    public PointofSale(Dictionary<Item, IPricingStrategy> priceStrategies)
     {
-      fruitPrices = pFruitPrices;
+      pricingStrategies = priceStrategies;
     }
 
-    public decimal CheckOut(IList<string> items)
+    public decimal CheckOut(IList<Item> items)
     {
       decimal totalBill = 0;
-      items.All(a =>
+      pricingStrategies.All(strategy =>
       {
-        totalBill += fruitPrices[a];
+        Item item = items.First(i => i.Name == strategy.Key.Name);
+        totalBill = totalBill + strategy.Value.GetPrice(item);
         return true;
       });
       return totalBill;
